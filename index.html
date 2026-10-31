@@ -3,41 +3,131 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TechCore Hardware | Funciones de Orden Superior (Pre-Entrega 6)</title>
-    <link rel="stylesheet" href="./css/styles.css" />
-    <!-- Archivo JavaScript en su carpeta ./js/ enrutado en el head con el atributo defer -->
+    <title>TechCore Hardware | Simulador Interactivo con DOM y Eventos</title>
+    <link rel="stylesheet" href="./css/style.css" />
+    <!-- Script principal enlazado en el head con el atributo defer -->
     <script src="./js/main.js" defer></script>
 </head>
 <body>
-    <main class="contenedor-principal">
-        <section class="tarjeta-presentacion">
-            <span class="insignia-entrega">JavaScript · Pre-Entrega 6: Funciones de Orden Superior</span>
+    <header class="encabezado-sitio">
+        <div class="contenedor">
+            <span class="insignia-modulo">JavaScript · Pre-Entrega: Interfaz Dinámica con DOM y Eventos</span>
             <h1>TechCore Hardware &amp; PC</h1>
-            <p class="descripcion">
-                Simulador interactivo de tienda de hardware que integra la clase <code>ProductoHardware</code>,
-                array de objetos y <strong>Funciones de Orden Superior</strong>:
-                métodos de búsqueda (<code>find</code>, <code>filter</code>, <code>some</code>, <code>forEach</code>)
-                y métodos de transformación y cálculo (<code>map</code> y <code>reduce</code>).
+            <p class="subtitulo">
+                Gestor de inventario y cotizador interactivo de componentes en tiempo real (100% DOM, sin recargar la página).
             </p>
+        </div>
+    </header>
 
-            <div class="bloque-catalogo">
-                <h2>Operaciones con Funciones de Orden Superior en el Simulador</h2>
-                <ul>
-                    <li><strong><code>forEach</code>:</strong> Recorre e imprime el catálogo de objetos y el detalle del carrito.</li>
-                    <li><strong><code>find</code>:</strong> Localiza un componente específico por su <code>id</code> o nombre para comprar o consultar.</li>
-                    <li><strong><code>filter</code> + <code>some</code>:</strong> Filtra componentes con stock disponible o según el presupuesto máximo del cliente.</li>
-                    <li><strong><code>map</code>:</strong> Transforma el catálogo generando un nuevo array con precios con IVA incluido y precios promocionales.</li>
-                    <li><strong><code>reduce</code>:</strong> Calcula tanto el valor total del inventario en almacén como el subtotal y total de unidades del carrito.</li>
-                </ul>
+    <main class="contenedor">
+        <!-- Panel de métricas en tiempo real actualizadas desde el DOM -->
+        <section class="panel-metricas" aria-label="Resumen del simulador">
+            <article class="tarjeta-metrica">
+                <span class="etiqueta-metrica">Modelos en Catálogo</span>
+                <strong id="metrica-total-modelos" class="valor-metrica">0</strong>
+            </article>
+            <article class="tarjeta-metrica">
+                <span class="etiqueta-metrica">Valor Total en Stock</span>
+                <strong id="metrica-valor-inventario" class="valor-metrica">$0 MXN</strong>
+            </article>
+            <article class="tarjeta-metrica">
+                <span class="etiqueta-metrica">Unidades Cotizadas</span>
+                <strong id="metrica-unidades-cotizadas" class="valor-metrica">0</strong>
+            </article>
+            <article class="tarjeta-metrica destacada">
+                <span class="etiqueta-metrica">Total Cotización (IVA incl.)</span>
+                <strong id="metrica-total-cotizado" class="valor-metrica">$0 MXN</strong>
+            </article>
+        </section>
+
+        <!-- Área de Feedback Visual dinámico -->
+        <div id="mensaje-feedback" class="banner-feedback" role="status" aria-live="polite">
+            Bienvenido a TechCore Hardware. Agrega un nuevo componente, filtra con el teclado o interactúa con las tarjetas.
+        </div>
+
+        <!-- Formulario para agregar un nuevo objeto al array sin recargar la página -->
+        <section class="panel-formulario">
+            <h2>Agregar Nuevo Componente al Catálogo</h2>
+            <form id="formulario-producto" class="grilla-formulario" novalidate>
+                <div class="campo-formulario">
+                    <label for="input-nombre">Nombre del componente</label>
+                    <input
+                        type="text"
+                        id="input-nombre"
+                        placeholder="Ej. Tarjeta Madre B650 WiFi"
+                        autocomplete="off"
+                    />
+                </div>
+
+                <div class="campo-formulario">
+                    <label for="select-categoria">Categoría</label>
+                    <select id="select-categoria">
+                        <option value="Procesadores">Procesadores</option>
+                        <option value="Tarjetas de Video">Tarjetas de Video</option>
+                        <option value="Memorias RAM">Memorias RAM</option>
+                        <option value="Almacenamiento">Almacenamiento</option>
+                        <option value="Monitores">Monitores</option>
+                        <option value="Periféricos">Periféricos</option>
+                    </select>
+                </div>
+
+                <div class="campo-formulario">
+                    <label for="input-precio">Precio ($ MXN)</label>
+                    <input
+                        type="number"
+                        id="input-precio"
+                        placeholder="Ej. 3850"
+                        min="1"
+                        step="50"
+                    />
+                </div>
+
+                <div class="campo-formulario">
+                    <label for="input-stock">Stock inicial</label>
+                    <input
+                        type="number"
+                        id="input-stock"
+                        placeholder="Ej. 10"
+                        min="1"
+                        max="999"
+                        value="5"
+                    />
+                </div>
+
+                <div class="acciones-formulario">
+                    <button type="button" id="boton-agregar" class="boton-primario">
+                        + Agregar
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Barra de búsqueda por evento de teclado y controles de filtrado -->
+        <section class="panel-herramientas">
+            <div class="caja-busqueda">
+                <label for="input-busqueda">Filtrar con el teclado (presiona <code>Esc</code> para limpiar):</label>
+                <input
+                    type="search"
+                    id="input-busqueda"
+                    placeholder="Escribe para buscar por nombre o categoría (ej. Ryzen, RTX, Monitor)..."
+                    autocomplete="off"
+                />
             </div>
 
-            <div class="bloque-instrucciones">
-                <h3>Instrucciones para revisar la entrega:</h3>
-                <ol>
-                    <li>Abre la <strong>Consola del Navegador</strong> (<strong>F12</strong> o <strong>Cmd + Option + J</strong> en Mac).</li>
-                    <li>Utiliza el menú interactivo por <code>prompt</code> para filtrar por presupuesto (<code>filter</code>), buscar y comprar por ID/nombre (<code>find</code>), transformar lista con IVA (<code>map</code>) y finalizar compra (<code>reduce</code>).</li>
-                </ol>
+            <div class="acciones-cotizacion">
+                <button type="button" id="boton-reiniciar-cotizacion" class="boton-secundario">
+                    Reiniciar Cotización
+                </button>
             </div>
+        </section>
+
+        <!-- Contenedor vacío donde se inyectan dinámicamente los objetos desde main.js -->
+        <section class="seccion-listado">
+            <div class="encabezado-listado">
+                <h2>Inventario Dinámico de Hardware</h2>
+                <span id="contador-resultados" class="contador-resultados">Mostrando 0 componentes</span>
+            </div>
+            <div id="contenedor-items" class="grilla-items"></div>
         </section>
     </main>
 </body>
